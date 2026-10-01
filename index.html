@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Осінні формули — iPad</title>
+<style>
+:root{
+  --cream:#fbf2e6;
+  --paper:#fffaf3;
+  --brown:#4c3427;
+  --muted:#7c6554;
+  --terracotta:#b85f38;
+  --pumpkin:#d68a32;
+  --olive:#6e7e45;
+  --line:#ead6bf;
+  --soft:#f4e2cf;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--brown);background:var(--cream);overscroll-behavior:none}
+button,textarea{font:inherit}
+button{cursor:pointer}
+.app{
+  min-height:100vh;
+  min-height:-webkit-fill-available;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+}
+header{
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));
+  background:rgba(255,250,243,.97);
+  border-bottom:1px solid var(--line);
+}
+.logo{font-weight:900;white-space:nowrap}
+.progress{height:10px;background:#eadfce;border-radius:999px;overflow:hidden;flex:1}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--terracotta),var(--pumpkin))}
+.count{font-weight:800;color:var(--muted);font-size:14px;white-space:nowrap}
+.head-btn{
+  border:1px solid var(--line);background:var(--paper);color:var(--brown);
+  width:48px;height:48px;border-radius:14px;font-weight:900
+}
+main{min-height:0;padding:12px}
+.card{
+  width:100%;height:100%;
+  min-height:0;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:26px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);
+  box-shadow:0 14px 40px rgba(91,57,30,.12);
+}
+.problem{
+  min-height:0;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:clamp(24px,4vw,54px);
+  display:flex;flex-direction:column;justify-content:center;
+  background:
+    radial-gradient(circle at 92% 12%,rgba(214,138,50,.10) 0 72px,transparent 74px),
+    radial-gradient(circle at 8% 90%,rgba(184,95,56,.08) 0 96px,transparent 98px);
+}
+.tag{
+  width:max-content;max-width:100%;
+  background:var(--soft);color:var(--terracotta);
+  padding:8px 12px;border-radius:999px;font-size:14px;font-weight:900;margin-bottom:16px
+}
+h1{font-size:clamp(31px,4vw,58px);line-height:1.08;margin:0 0 18px;letter-spacing:-.03em}
+.expression{
+  font-size:clamp(28px,4.2vw,62px);
+  line-height:1.22;
+  font-weight:900;
+  white-space:pre-line;
+  word-break:break-word;
+}
+.extra{
+  margin-top:18px;
+  color:var(--muted);
+  font-size:clamp(18px,2vw,27px);
+  line-height:1.45;
+  white-space:pre-line;
+}
+.workspace{
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  padding:14px;
+  border-left:1px solid var(--line);
+  background:#f9eee1;
+}
+.workspace-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 10px}
+.workspace-title{font-weight:900}
+.tabs{display:flex;gap:6px}
+.tab{
+  border:1px solid var(--line);background:var(--paper);color:var(--brown);
+  min-height:42px;padding:0 12px;border-radius:12px;font-weight:850
+}
+.tab.active{background:var(--terracotta);border-color:var(--terracotta);color:white}
+.workbox{
+  min-height:0;
+  border:2px dashed #d6b998;
+  border-radius:20px;
+  overflow:hidden;
+  background:var(--paper);
+  position:relative
+}
+#drawCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+  background-color:#fffaf3;
+  background-image:
+    linear-gradient(#eee0d0 1px, transparent 1px),
+    linear-gradient(90deg,#f3e7d8 1px, transparent 1px);
+  background-size:32px 32px;
+  touch-action:none;
+}
+#notes{
+  display:none;
+  width:100%;height:100%;
+  border:0;outline:0;resize:none;
+  padding:22px;background:var(--paper);color:var(--brown);
+  font-size:22px;line-height:1.5
+}
+.actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px}
+.action{
+  min-height:46px;padding:0 14px;border-radius:14px;
+  border:1px solid var(--line);background:var(--paper);color:var(--brown);font-weight:850
+}
+.action.hint{background:#fff2d9;border-color:#efd3a6}
+.action.answer{background:#eef3df;border-color:#d2ddb4;color:#53642f}
+.action.done{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+footer{
+  padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  display:flex;gap:10px;background:var(--cream)
+}
+.nav{
+  min-height:54px;border:0;border-radius:16px;font-weight:900;font-size:17px;flex:1
+}
+.prev{background:var(--paper);color:var(--brown);border:1px solid var(--line)}
+.next{background:var(--terracotta);color:white}
+.toast{
+  position:fixed;
+  left:50%;bottom:92px;transform:translate(-50%,160%);
+  width:min(720px,calc(100% - 30px));
+  padding:17px 18px;border-radius:17px;
+  background:#4c3427;color:#fff;z-index:20;
+  box-shadow:0 16px 40px rgba(0,0,0,.25);
+  transition:transform .25s ease;
+  font-size:17px;line-height:1.4
+}
+.toast.show{transform:translate(-50%,0)}
+.toast.good{background:#5f743c}
+.formulas{
+  display:none;margin-top:18px;grid-template-columns:1fr;gap:8px
+}
+.formulas.show{display:grid}
+.formulas div{
+  border:1px solid var(--line);background:#fff7ec;border-radius:14px;
+  padding:11px 13px;font-weight:800;font-size:clamp(16px,1.8vw,22px)
+}
+.check{margin-top:16px;font-weight:900;color:var(--olive);display:none}
+.check.show{display:block}
+@media (orientation:portrait), (max-width:900px){
+  .app{height:auto;min-height:100vh}
+  main{overflow:auto}
+  .card{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 150px)}
+  .problem{min-height:46vh;padding:26px 20px}
+  .workspace{border-left:0;border-top:1px solid var(--line);min-height:46vh}
+  .workbox{min-height:320px}
+  .logo{display:none}
+  footer{position:sticky;bottom:0;z-index:10;background:rgba(251,242,230,.97)}
+}
+@media (max-width:560px){
+  .count{font-size:12px}
+  .head-btn{width:44px;height:44px}
+  .expression{font-size:31px}
+  .workspace-top{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">🍂 Формули скороченого множення</div>
+  <div class="progress"><span id="bar"></span></div>
+  <div class="count" id="count"></div>
+  <button class="head-btn" id="formulaBtn" aria-label="Шпаргалка">ƒ</button>
+</header>
+
+<main>
+  <section class="card">
+    <div class="problem">
+      <div class="tag" id="tag"></div>
+      <h1 id="title"></h1>
+      <div class="expression" id="expression"></div>
+      <div class="extra" id="extra"></div>
+      <div class="formulas" id="formulas"></div>
+      <div class="check" id="check">✓ Виконано</div>
+    </div>
+
+    <div class="workspace">
+      <div class="workspace-top">
+        <div class="workspace-title">Місце для розв’язання</div>
+        <div class="tabs">
+          <button class="tab active" id="drawTab">✍️ Стилус</button>
+          <button class="tab" id="textTab">⌨️ Текст</button>
+        </div>
+      </div>
+      <div class="workbox">
+        <canvas id="drawCanvas"></canvas>
+        <textarea id="notes" placeholder="Пиши розв’язання тут…"></textarea>
+      </div>
+      <div class="actions">
+        <button class="action" id="clearBtn">Очистити</button>
+        <button class="action hint" id="hintBtn">💡 Підказка</button>
+        <button class="action answer" id="answerBtn">✓ Відповідь</button>
+        <button class="action done" id="doneBtn">Готово</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button class="nav prev" id="prevBtn">← Назад</button>
+  <button class="nav next" id="nextBtn">Далі →</button>
+</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+var tasks=[
+{sec:"Старт",t:"Шпаргалка",e:"Квадрати та куби",x:"Натискай ƒ зверху, якщо захочеш швидко переглянути формули.",f:true,h:"Подивись на степінь: ² — квадрат, ³ — куб.",a:"Можна переходити до завдань."},
+
+{sec:"Розминка",t:"Яка це формула?",e:"(x + 5)²",x:"Назви формулу, не розкриваючи дужки.",h:"Квадрат усієї суми.",a:"Квадрат суми."},
+{sec:"Розминка",t:"Яка це формула?",e:"25a² − 9b²",x:"Назви формулу.",h:"Обидві частини — повні квадрати.",a:"Різниця квадратів."},
+{sec:"Розминка",t:"Яка це формула?",e:"x³ − 27",x:"Назви формулу.",h:"27 = 3³.",a:"Різниця кубів."},
+{sec:"Розминка",t:"Яка це формула?",e:"8p³ + 125",x:"Назви формулу.",h:"8p³=(2p)³, 125=5³.",a:"Сума кубів."},
+
+{sec:"Квадрати",t:"Розкрий дужки",e:"(x + 3)²",x:"Запиши многочлен.",h:"a²+2ab+b².",a:"x² + 6x + 9"},
+{sec:"Квадрати",t:"Розкрий дужки",e:"(2x − 5)²",x:"Запиши многочлен.",h:"a=2x, b=5.",a:"4x² − 20x + 25"},
+{sec:"Квадрати",t:"Розкрий дужки",e:"(3a − 2b)²",x:"Будь уважною із середнім членом.",h:"2·3a·2b=12ab.",a:"9a² − 12ab + 4b²"},
+{sec:"Квадрати",t:"Розклади на множники",e:"x² − 49",x:"Скористайся формулою.",h:"49=7².",a:"(x−7)(x+7)"},
+{sec:"Квадрати",t:"Розклади на множники",e:"16a² − 81",x:"Скористайся різницею квадратів.",h:"16a²=(4a)², 81=9².",a:"(4a−9)(4a+9)"},
+{sec:"Квадрати",t:"Віднови формулу",e:"x² + 10x + 25",x:"Подай як квадрат двочлена.",h:"10x=2·x·5.",a:"(x+5)²"},
+{sec:"Квадрати",t:"Віднови формулу",e:"9a² − 30ab + 25b²",x:"Подай як квадрат двочлена.",h:"3a та 5b.",a:"(3a−5b)²"},
+
+{sec:"Куби",t:"Розкрий куб",e:"(x + 2)³",x:"Запиши многочлен.",h:"Коефіцієнти 1,3,3,1.",a:"x³ + 6x² + 12x + 8"},
+{sec:"Куби",t:"Розкрий куб",e:"(x − 2)³",x:"Стеж за знаками.",h:"+, −, +, −.",a:"x³ − 6x² + 12x − 8"},
+{sec:"Куби",t:"Розклади на множники",e:"x³ − 64",x:"Використай різницю кубів.",h:"64=4³.",a:"(x−4)(x²+4x+16)"},
+{sec:"Куби",t:"Розклади на множники",e:"27a³ + 8",x:"Використай суму кубів.",h:"(3a)³+2³.",a:"(3a+2)(9a²−6a+4)"},
+{sec:"Куби",t:"Розклади на множники",e:"64a³ + 125",x:"Використай суму кубів.",h:"(4a)³+5³.",a:"(4a+5)(16a²−20a+25)"},
+{sec:"Куби",t:"Розклади на множники",e:"a³ − 216",x:"Використай різницю кубів.",h:"216=6³.",a:"(a−6)(a²+6a+36)"},
+
+{sec:"Знайди помилку",t:"Виправ помилку",e:"(x + 4)² = x² + 16",x:"Що пропущено?",h:"Є середній член.",a:"x² + 8x + 16"},
+{sec:"Знайди помилку",t:"Виправ помилку",e:"x² − 36 = (x − 6)²",x:"Ліва частина — інша формула.",h:"Різниця квадратів.",a:"(x−6)(x+6)"},
+{sec:"Знайди помилку",t:"Виправ помилку",e:"(a + b)³ = a³ + b³",x:"У кубі суми чотири члени.",h:"Не забудь 3a²b та 3ab².",a:"a³+3a²b+3ab²+b³"},
+
+{sec:"Швидкі обчислення",t:"Обчисли зручно",e:"49²",x:"Без множення стовпчиком.",h:"49=50−1.",a:"2401"},
+{sec:"Швидкі обчислення",t:"Обчисли зручно",e:"102²",x:"Без множення стовпчиком.",h:"102=100+2.",a:"10404"},
+{sec:"Швидкі обчислення",t:"Обчисли зручно",e:"1001 · 999",x:"Шукай різницю квадратів.",h:"(1000+1)(1000−1).",a:"999999"},
+{sec:"Швидкі обчислення",t:"Обчисли зручно",e:"53 · 47",x:"Шукай різницю квадратів.",h:"(50+3)(50−3).",a:"2491"},
+
+{sec:"Мікс",t:"Спрости",e:"(x + 4)² − (x − 4)²",x:"Спрости максимально.",h:"Після розкриття багато членів скоротяться.",a:"16x"},
+{sec:"Мікс",t:"Спрости",e:"(a + b)² − (a − b)²",x:"Спрости максимально.",h:"Крайні члени скоротяться.",a:"4ab"},
+{sec:"Мікс",t:"Спрости",e:"(2x + 3)² − 4x² − 12x",x:"Спрости максимально.",h:"Розкрий тільки квадрат.",a:"9"},
+{sec:"Мікс",t:"Спрости",e:"(x + 1)³ − (x − 1)³",x:"Спрости максимально.",h:"Розкрий обидва куби.",a:"6x² + 2"},
+{sec:"Мікс",t:"Спрости",e:"(2a + 1)³ − (2a − 1)³",x:"Складніше.",h:"Після розкриття скоротяться кубічні та лінійні? Перевір уважно.",a:"24a² + 2"},
+{sec:"Мікс",t:"Спрости",e:"(3x − 2)² − (x + 2)(x − 2)",x:"Тут дві різні формули.",h:"Квадрат різниці + різниця квадратів.",a:"8x² − 12x + 8"},
+
+{sec:"Рівняння",t:"Розв’яжи",e:"(x + 3)² − (x − 3)² = 36",x:"Знайди x.",h:"Ліва частина =12x.",a:"x=3"},
+{sec:"Рівняння",t:"Розв’яжи",e:"(x − 3)² = 49",x:"Не забудь про два випадки.",h:"x−3=7 або x−3=−7.",a:"x=10 або x=−4"},
+{sec:"Рівняння",t:"Розв’яжи",e:"(x + 2)(x − 2) = 21",x:"Знайди x.",h:"x²−4=21.",a:"x=−5 або x=5"},
+{sec:"Рівняння",t:"Розв’яжи",e:"(x + 2)³ − (x − 2)³ = 64",x:"Складніше.",h:"Ліва частина =12x²+16.",a:"x=−2 або x=2"},
+
+{sec:"Задачі",t:"Квадратна ділянка",e:"Сторона квадратної ділянки: x + 3 м",x:"1) Запиши площу.\n2) Розкрий дужки.\n3) Знайди площу, якщо x=7.",h:"S=(x+3)².",a:"S=x²+6x+9; при x=7: 100 м²"},
+{sec:"Задачі",t:"Дві квадратні ділянки",e:"Сторони: x + 3 см та x − 3 см",x:"На скільки площа більшого квадрата більша?",h:"(x+3)²−(x−3)².",a:"12x см²"},
+{sec:"Задачі",t:"Осіння клумба 🍂",e:"Сторона квадратної клумби була x м, а стала x + 2 м",x:"На скільки збільшилась площа?",h:"Порівняй (x+2)² та x².",a:"4x + 4 м²"},
+{sec:"Задачі",t:"Кубічна коробка",e:"Ребро було 10 см, стало 12 см",x:"На скільки збільшився об’єм?",h:"12³−10³.",a:"728 см³"},
+
+{sec:"Фінал",t:"Фінальний Challenge 🔥",e:"(x + 2)³ − (x − 2)³ − 24x²",x:"Спрости максимально.",h:"Спочатку знайди різницю двох кубів.",a:"16 − 12x²"},
+{sec:"Фінал",t:"Бліц",e:"49x² − 16",x:"Розклади на множники.",h:"(7x)²−4².",a:"(7x−4)(7x+4)"},
+{sec:"Фінал",t:"Бліц",e:"27a³ + b³",x:"Розклади на множники.",h:"(3a)³+b³.",a:"(3a+b)(9a²−3ab+b²)"}
+];
+
+var formulas=[
+"(a+b)² = a²+2ab+b²",
+"(a−b)² = a²−2ab+b²",
+"a²−b² = (a−b)(a+b)",
+"(a+b)³ = a³+3a²b+3ab²+b³",
+"(a−b)³ = a³−3a²b+3ab²−b³",
+"a³+b³ = (a+b)(a²−ab+b²)",
+"a³−b³ = (a−b)(a²+ab+b²)"
+];
+
+var i=0, done={}, mode="draw";
+var bar=document.getElementById("bar"),
+count=document.getElementById("count"),
+tag=document.getElementById("tag"),
+title=document.getElementById("title"),
+expr=document.getElementById("expression"),
+extra=document.getElementById("extra"),
+formulaBox=document.getElementById("formulas"),
+check=document.getElementById("check"),
+toast=document.getElementById("toast"),
+canvas=document.getElementById("drawCanvas"),
+ctx=canvas.getContext("2d"),
+notes=document.getElementById("notes"),
+drawTab=document.getElementById("drawTab"),
+textTab=document.getElementById("textTab"),
+doneBtn=document.getElementById("doneBtn");
+
+function fitCanvas(){
+  var rect=canvas.getBoundingClientRect();
+  if(!rect.width || !rect.height) return;
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.round(rect.width*dpr);
+  canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineWidth=3;
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  ctx.strokeStyle="#4c3427";
+}
+function render(){
+  var q=tasks[i];
+  tag.textContent=q.sec;
+  title.textContent=q.t;
+  expr.textContent=q.e;
+  extra.textContent=q.x||"";
+  count.textContent=(i+1)+" / "+tasks.length;
+  bar.style.width=(((i+1)/tasks.length)*100)+"%";
+  formulaBox.className="formulas"+(q.f?" show":"");
+  formulaBox.innerHTML=q.f?formulas.map(function(f){return "<div>"+f+"</div>"}).join(""):"";
+  check.className="check"+(done[i]?" show":"");
+  doneBtn.textContent=done[i]?"Скасувати ✓":"Готово";
+  document.getElementById("prevBtn").disabled=(i===0);
+  document.getElementById("nextBtn").textContent=(i===tasks.length-1)?"На початок ↺":"Далі →";
+  notes.value="";
+  clearCanvas();
+  setTimeout(fitCanvas,40);
+}
+function showToast(text,good){
+  toast.textContent=text;
+  toast.className="toast show"+(good?" good":"");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(function(){toast.className="toast";},4800);
+}
+function clearCanvas(){
+  if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+function change(n){
+  i=Math.max(0,Math.min(tasks.length-1,n));
+  render();
+}
+function setMode(m){
+  mode=m;
+  if(m==="draw"){
+    canvas.style.display="block";
+    notes.style.display="none";
+    drawTab.className="tab active";
+    textTab.className="tab";
+    setTimeout(fitCanvas,30);
+  }else{
+    canvas.style.display="none";
+    notes.style.display="block";
+    drawTab.className="tab";
+    textTab.className="tab active";
+    notes.focus();
+  }
+}
+
+/* Apple Pencil / touch / mouse drawing */
+var drawing=false,lastX=0,lastY=0;
+function pointFromEvent(e){
+  var rect=canvas.getBoundingClientRect();
+  var source=e;
+  if(e.touches && e.touches.length) source=e.touches[0];
+  else if(e.changedTouches && e.changedTouches.length) source=e.changedTouches[0];
+  return {x:source.clientX-rect.left,y:source.clientY-rect.top};
+}
+function startDraw(e){
+  if(mode!=="draw") return;
+  if(e.cancelable) e.preventDefault();
+  drawing=true;
+  var p=pointFromEvent(e);
+  lastX=p.x;lastY=p.y;
+  ctx.beginPath();
+  ctx.moveTo(lastX,lastY);
+}
+function moveDraw(e){
+  if(!drawing || mode!=="draw") return;
+  if(e.cancelable) e.preventDefault();
+  var p=pointFromEvent(e);
+  ctx.lineTo(p.x,p.y);
+  ctx.stroke();
+  lastX=p.x;lastY=p.y;
+}
+function stopDraw(e){
+  if(!drawing) return;
+  if(e && e.cancelable) e.preventDefault();
+  drawing=false;
+  ctx.closePath();
+}
+if(window.PointerEvent){
+  canvas.addEventListener("pointerdown",startDraw,{passive:false});
+  canvas.addEventListener("pointermove",moveDraw,{passive:false});
+  canvas.addEventListener("pointerup",stopDraw,{passive:false});
+  canvas.addEventListener("pointercancel",stopDraw,{passive:false});
+}else{
+  canvas.addEventListener("touchstart",startDraw,{passive:false});
+  canvas.addEventListener("touchmove",moveDraw,{passive:false});
+  canvas.addEventListener("touchend",stopDraw,{passive:false});
+  canvas.addEventListener("mousedown",startDraw,false);
+  canvas.addEventListener("mousemove",moveDraw,false);
+  canvas.addEventListener("mouseup",stopDraw,false);
+}
+
+drawTab.addEventListener("click",function(){setMode("draw")});
+textTab.addEventListener("click",function(){setMode("text")});
+document.getElementById("clearBtn").addEventListener("click",function(){
+  if(mode==="draw") clearCanvas(); else notes.value="";
+});
+document.getElementById("hintBtn").addEventListener("click",function(){showToast("💡 "+tasks[i].h,false)});
+document.getElementById("answerBtn").addEventListener("click",function(){showToast("✓ "+tasks[i].a,true)});
+doneBtn.addEventListener("click",function(){
+  done[i]=!done[i];
+  check.className="check"+(done[i]?" show":"");
+  doneBtn.textContent=done[i]?"Скасувати ✓":"Готово";
+});
+document.getElementById("formulaBtn").addEventListener("click",function(){
+  showToast(formulas.join("   •   "),false);
+});
+document.getElementById("prevBtn").addEventListener("click",function(){if(i>0)change(i-1)});
+document.getElementById("nextBtn").addEventListener("click",function(){
+  if(i===tasks.length-1) change(0); else change(i+1);
+});
+
+window.addEventListener("resize",function(){setTimeout(fitCanvas,150)});
+window.addEventListener("orientationchange",function(){setTimeout(fitCanvas,350)});
+
+render();
+setMode("draw");
+})();
+</script>
+</body>
+</html>
